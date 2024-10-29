@@ -1,0 +1,100 @@
+# Common settings
+image:
+  repository: busybox
+  tag: latest
+  pullPolicy: IfNotPresent
+
+resources:
+  limits:
+    cpu: 1
+    memory: 2Gi
+  requests:
+    cpu: 500m
+    memory: 1Gi
+
+# ServiceAccount configuration
+serviceAccount:
+  create: false
+  name: "backend"
+  annotations: {}
+
+# Init Container configuration
+initContainer:
+  enabled: false
+  image:
+    repository: amazon/aws-cli
+    tag: latest
+    pullPolicy: IfNotPresent
+  command: ["/bin/sh"]
+  args:
+    - "-c"
+    - "aws s3 ls s3://devops/mongo/karthik/ && echo 's3 bucket exists' || echo 's3 bucket does not exist'"
+  env: []
+  volumeMounts:
+    - name: init-data
+      mountPath: /init-data
+# Volume configuration
+volumes: []
+
+volumeMounts: []
+
+# Job specific settings
+job:
+  create: true
+  labels: {}
+  podLabels: {}
+  # command: ["/bin/sh"]
+  command: []
+  args:
+    []
+    # - "-c"
+    # - "echo 'Job starting' && sleep 30 && echo 'Job completed'"
+  restartPolicy: OnFailure
+  backoffLimit: 3
+  activeDeadlineSeconds: 600
+  ttlSecondsAfterFinished: 100
+  env:
+    - name: MONGO_PS_USERNAME
+      valueFrom:
+        secretKeyRef:
+          name: mongo-creds
+          key: MONGO_PS_USERNAME
+    - name: MONGO_PS_PASSWORD
+      valueFrom:
+        secretKeyRef:
+          name: mongo-creds
+          key: MONGO_PS_PASSWORD
+
+# CronJob specific settings
+cronjob:
+  create: true
+  labels: {}
+  podLabels: {}
+  schedule: "30 20 * * *"
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 2
+  command: []
+  args: []
+  restartPolicy: OnFailure
+  env:
+    - name: MONGO_PS_USERNAME
+      valueFrom:
+        secretKeyRef:
+          name: mongo-creds
+          key: MONGO_PS_USERNAME
+    - name: MONGO_PS_PASSWORD
+      valueFrom:
+        secretKeyRef:
+          name: mongo-creds
+          key: MONGO_PS_PASSWORD
+# Additional settings
+podAnnotations: {}
+
+# Node selection
+nodeSelector: {}
+
+# Tolerations
+tolerations: []
+
+# Affinity
+affinity: {}

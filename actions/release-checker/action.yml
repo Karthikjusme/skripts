@@ -1,0 +1,12 @@
+name: "Release Checker"
+description: "Checks if the tag is valid or not"
+inputs:
+  script-args:
+    description: "Arguments to pass to the Python script"
+    required: false
+    default: ""
+runs:
+  using: "docker"
+  image: "Dockerfile"
+  args:
+    - ${{ inputs.script-args }}
